@@ -145,6 +145,10 @@ class BetaReductionSpec extends Spec {
           val ast: Ast = OptionForall(Ident("a"), Ident("b"), Ident("b"))
           BetaReduction(ast, Ident("b") -> Ident("b'")) mustEqual ast
         }
+        "filterIfDefined" in {
+          val ast: Ast = FilterIfDefined(Ident("a"), Ident("b"), Ident("b"))
+          BetaReduction(ast, Ident("b") -> Ident("b'")) mustEqual ast
+        }
         "forall - Unchecked" in {
           val ast: Ast = OptionTableForall(Ident("a"), Ident("b"), Ident("b"))
           BetaReduction(ast, Ident("b") -> Ident("b'")) mustEqual ast

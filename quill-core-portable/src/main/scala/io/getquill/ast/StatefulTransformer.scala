@@ -90,6 +90,10 @@ trait StatefulTransformer[T] {
         val (at, att) = apply(a)
         val (ct, ctt) = att.apply(c)
         (OptionForall(at, b, ct), ctt)
+      case FilterIfDefined(a, b, c) =>
+        val (at, att) = apply(a)
+        val (ct, ctt) = att.apply(c)
+        (FilterIfDefined(at, b, ct), ctt)
       case OptionExists(a, b, c) =>
         val (at, att) = apply(a)
         val (ct, ctt) = att.apply(c)

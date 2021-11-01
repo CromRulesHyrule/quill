@@ -292,6 +292,11 @@ class StatelessTransformerSpec extends Spec {
         Subject(Ident("a") -> Ident("a'"), Ident("b") -> Ident("b'"), Ident("c") -> Ident("c'"))(ast) mustEqual
           OptionForall(Ident("a'"), Ident("b"), Ident("c'"))
       }
+      "filterIfDefined" in {
+        val ast: Ast = FilterIfDefined(Ident("a"), Ident("b"), Ident("c"))
+        Subject(Ident("a") -> Ident("a'"), Ident("b") -> Ident("b'"), Ident("c") -> Ident("c'"))(ast) mustEqual
+          FilterIfDefined(Ident("a'"), Ident("b"), Ident("c'"))
+      }
       "forall - Unchecked" in {
         val ast: Ast = OptionTableForall(Ident("a"), Ident("b"), Ident("c"))
         Subject(Ident("a") -> Ident("a'"), Ident("b") -> Ident("b'"), Ident("c") -> Ident("c'"))(ast) mustEqual

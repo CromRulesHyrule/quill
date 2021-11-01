@@ -75,6 +75,29 @@ class SqlIdiomSpec extends Spec {
               "SELECT t.s, t.i, t.l, t.o, t.b FROM TestEntity t WHERE (t.i = 1 OR t.i = 2 OR t.i = 3) AND t.s = 's'"
           }
         }
+        "IS NULL OR" - {
+          "forall IS NULL OR" in {
+            val q = quote {
+              qr3.filter(t => Option("s").forall(_ == t.s))
+            }
+            testContext.run(q).string mustEqual
+              "SELECT t.s, t.i, t.l, t.o FROM TestEntity3 t WHERE 's' IS NULL OR 's' = t.s"
+          }
+          "filterIfDefined IS NULL OR" in {
+            val q = quote {
+              qr3.filter(t => Option("s").filterIfDefined(_ == t.s))
+            }
+            testContext.run(q).string mustEqual
+              "SELECT t.s, t.i, t.l, t.o FROM TestEntity3 t WHERE 's' IS NULL OR 's' = t.s"
+          }
+          "filterIfDefined IS NULL OR when option is empty" in {
+            val q = quote {
+              qr3.filter(t => Option.empty[String].filterIfDefined(_ == t.s))
+            }
+            testContext.run(q).string mustEqual
+              "SELECT t.s, t.i, t.l, t.o FROM TestEntity3 t WHERE null IS NULL OR null = t.s"
+          }
+        }
       }
 
       "multiple entities" in {
@@ -161,7 +184,7 @@ class SqlIdiomSpec extends Spec {
             } yield (v1, v2)
           }
           testContext.run(q).string mustEqual
-            "SELECT i.i, x1.s, x1.i, x1.l, x1.o FROM (SELECT DISTINCT i.i FROM TestEntity i) AS i, TestEntity2 x1 WHERE x1.i = i.i"
+            "SELECT i.i, x4.s, x4.i, x4.l, x4.o FROM (SELECT DISTINCT i.i FROM TestEntity i) AS i, TestEntity2 x4 WHERE x4.i = i.i"
         }
 
         "with two joins" in {
@@ -172,7 +195,7 @@ class SqlIdiomSpec extends Spec {
             } yield (v1, v2)
           }
           testContext.run(q).string mustEqual
-            "SELECT i.i, x2.s, x2.i, x2.l, x2.o FROM (SELECT DISTINCT i.i FROM TestEntity i) AS i INNER JOIN (SELECT x2.s, x2.i, x2.l, x2.o FROM TestEntity2 x2 ORDER BY x2.l ASC NULLS FIRST) AS x2 ON x2.i = i.i"
+            "SELECT i.i, x5.s, x5.i, x5.l, x5.o FROM (SELECT DISTINCT i.i FROM TestEntity i) AS i INNER JOIN (SELECT x5.s, x5.i, x5.l, x5.o FROM TestEntity2 x5 ORDER BY x5.l ASC NULLS FIRST) AS x5 ON x5.i = i.i"
         }
 
         "followed by aggregation" in {

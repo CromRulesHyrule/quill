@@ -135,6 +135,8 @@ case class BetaReduction(map: IMap[Ast, Ast], typeBehavior: TypeBehavior)
         OptionMap(apply(a), b, BetaReduction(map - b, typeBehavior)(c))
       case OptionForall(a, b, c) =>
         OptionForall(apply(a), b, BetaReduction(map - b, typeBehavior)(c))
+      case FilterIfDefined(a, b, c) =>
+        FilterIfDefined(apply(a), b, BetaReduction(map - b, typeBehavior)(c))
       case OptionExists(a, b, c) =>
         OptionExists(apply(a), b, BetaReduction(map - b, typeBehavior)(c))
       case other =>

@@ -51,6 +51,7 @@ trait StatelessTransformer {
       case OptionFlatMap(a, b, c)      => OptionFlatMap(apply(a), applyIdent(b), apply(c))
       case OptionMap(a, b, c)          => OptionMap(apply(a), applyIdent(b), apply(c))
       case OptionForall(a, b, c)       => OptionForall(apply(a), applyIdent(b), apply(c))
+      case FilterIfDefined(a, b, c)    => FilterIfDefined(apply(a), applyIdent(b), apply(c))
       case OptionExists(a, b, c)       => OptionExists(apply(a), applyIdent(b), apply(c))
       case OptionContains(a, b)        => OptionContains(apply(a), apply(b))
       case OptionIsEmpty(a)            => OptionIsEmpty(apply(a))

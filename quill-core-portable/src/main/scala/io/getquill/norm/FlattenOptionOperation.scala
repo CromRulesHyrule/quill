@@ -25,6 +25,15 @@ class FlattenOptionOperation(concatBehavior: ConcatBehavior) extends StatelessTr
       case BinaryOperation(_, StringOperator.`+`, _) if (concatBehavior == NonAnsiConcat) => true
     }.nonEmpty
 
+  def flattenForall(ast: Ast, alias: Ident, body: Ast) = {
+    if (containsNonFallthroughElement(body)) {
+      val reduction = BetaReduction(body, alias -> ast)
+      apply((IsNullCheck(ast) +||+ (IsNotNullCheck(ast) +&&+ reduction)): Ast)
+    } else {
+      uncheckedForall(ast, alias, body)
+    }
+  }
+
   override def apply(ast: Ast): Ast =
     ast match {
 
@@ -80,12 +89,10 @@ class FlattenOptionOperation(concatBehavior: ConcatBehavior) extends StatelessTr
         }
 
       case OptionForall(ast, alias, body) =>
-        if (containsNonFallthroughElement(body)) {
-          val reduction = BetaReduction(body, alias -> ast)
-          apply((IsNullCheck(ast) +||+ (IsNotNullCheck(ast) +&&+ reduction)): Ast)
-        } else {
-          uncheckedForall(ast, alias, body)
-        }
+        flattenForall(ast, alias, body)
+
+      case FilterIfDefined(ast, alias, body) =>
+        flattenForall(ast, alias, body)
 
       case OptionExists(ast, alias, body) =>
         if (containsNonFallthroughElement(body)) {

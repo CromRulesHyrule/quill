@@ -111,6 +111,7 @@ object VerifySqlQuery {
       (CollectAst(ast) {
         case op: OptionExists if op.quat.isInstanceOf[Quat.Product] => throw new IllegalArgumentException("Cannot use Option.exists on a table or embedded case class")
         case op: OptionForall if op.quat.isInstanceOf[Quat.Product] => throw new IllegalArgumentException("Cannot use Option.forAll on a table or embedded case class")
+        case op: FilterIfDefined if op.quat.isInstanceOf[Quat.Product] => throw new IllegalArgumentException("Cannot use Option.filterIfDefined on a table or embedded case class")
         case op: OptionGetOrElse if op.quat.isInstanceOf[Quat.Product] => throw new IllegalArgumentException("Cannot use Option.getOrElse on a table or embedded case class")
         case op: OptionIsEmpty if op.quat.isInstanceOf[Quat.Product] => throw new IllegalArgumentException("Cannot use Option.isEmpty on a table or embedded case class")
         case op: OptionNonEmpty if op.quat.isInstanceOf[Quat.Product] => throw new IllegalArgumentException("Cannot use Option.nonEmpty on a table or embedded case class")

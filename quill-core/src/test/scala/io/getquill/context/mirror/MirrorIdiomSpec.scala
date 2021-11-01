@@ -574,6 +574,15 @@ class MirrorIdiomSpec extends Spec {
           stmt"(o) => o.forall((v) => v.id == 1)"
       }
     }
+    "filterIfDefined" - {
+      "regular" in {
+        val q = quote {
+          (o: Option[Boolean]) => o.filterIfDefined(v => v)
+        }
+        stmt"${(q.ast: Ast).token}" mustEqual
+          stmt"(o) => o.filterIfDefined((v) => v)"
+      }
+    }
     "exists" - {
       "regular" in {
         val q = quote {

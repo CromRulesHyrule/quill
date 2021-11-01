@@ -38,6 +38,8 @@ case class FreeVariables(state: State)
         (q, free(a, b, c))
       case q @ OptionForall(a, b, c) =>
         (q, free(a, b, c))
+      case q @ FilterIfDefined(a, b, c) =>
+        (q, free(a, b, c))
       case q @ OptionExists(a, b, c) =>
         (q, free(a, b, c))
       case other =>

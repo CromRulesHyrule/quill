@@ -411,13 +411,13 @@ trait Parsing extends ValueComputation with QuatMaking {
   private def ident(x: TermName, quat: Quat): Ident = identClean(Ident(x.decodedName.toString, quat))
 
   /**
-   * In order to guarentee consistent behavior across multiple databases, we have begun to explicitly to null-check
-   * nullable columns that are wrapped inside of `Option[T]` whenever a `Option.map`, `Option.flatMap`, `Option.forall`, and
-   * `Option.exists` are used. However, we would like users to be warned that the behavior of improperly structured queries
-   * may change as a result of this modification (see #1302 for more details). This method search the subtree of the
-   * respective Option methods and creates a warning if any `If(_, _, _)` AST elements are found inside. Since these
-   * can be found deeply nested in the AST (e.g. inside of `BinaryOperation` nodes etc...) it is necessary to recursively
-   * traverse into the subtree via a stateful transformer in order to discovery this.
+   * In order to guarantee consistent behavior across multiple databases, we have begun to explicitly to null-check
+   * nullable columns that are wrapped inside of `Option[T]` whenever a `Option.map`, `Option.flatMap`, `Option.forall`,
+   * `Option.filterIfDefined`, and `Option.exists` are used. However, we would like users to be warned that the behavior
+   * of improperly structured queries may change as a result of this modification (see #1302 for more details). This
+   * method search the subtree of the respective Option methods and creates a warning if any `If(_, _, _)` AST elements
+   * are found inside. Since these can be found deeply nested in the AST (e.g. inside of `BinaryOperation` nodes etc...)
+   * it is necessary to recursively traverse into the subtree via a stateful transformer in order to discovery this.
    */
   private def warnConditionalsExist(ast: OptionOperation) = {
     def searchSubtreeAndWarn(subtree: Ast, warning: String) = {
@@ -437,6 +437,8 @@ trait Parsing extends ValueComputation with QuatMaking {
         searchSubtreeAndWarn(body, s"Conditionals inside of Option.flatMap will create a `CASE` statement in order to properly null-check the sub-query: `${ast}`." + messageSuffix)
       case OptionForall(_, _, body) =>
         searchSubtreeAndWarn(body, s"Conditionals inside of Option.forall will create a null-check statement in order to properly null-check the sub-query: `${ast}`." + messageSuffix)
+      case FilterIfDefined(_, _, body) =>
+        searchSubtreeAndWarn(body, s"Conditionals inside of Option.filterIfDefined will create a null-check statement in order to properly null-check the sub-query: `${ast}`." + messageSuffix)
       case OptionExists(_, _, body) =>
         searchSubtreeAndWarn(body, s"Conditionals inside of Option.exists will create a null-check statement in order to properly null-check the sub-query: `${ast}`." + messageSuffix)
       case _ =>
@@ -492,6 +494,13 @@ trait Parsing extends ValueComputation with QuatMaking {
         OptionTableForall(astParser(o), identParser(alias), astParser(body))
       } else {
         warnConditionalsExist(OptionForall(astParser(o), identParser(alias), astParser(body)))
+      }
+
+    case q"$prefix.NullableColumnExtensions[$nt]($o).filterIfDefined({($alias) => $body})" if is[Option[Any]](o) =>
+      if (isOptionEmbedded(o) || isOptionRowType(o)) {
+        c.fail("filterIfDefined only allowed on individual columns, not on case classes or tuples.")
+      } else {
+        warnConditionalsExist(FilterIfDefined(astParser(o), identParser(alias), astParser(body)))
       }
 
     // For column values

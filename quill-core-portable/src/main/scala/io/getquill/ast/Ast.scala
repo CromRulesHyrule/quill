@@ -393,6 +393,8 @@ case class OptionFlatMap(ast: Ast, alias: Ident, body: Ast)
 case class OptionMap(ast: Ast, alias: Ident, body: Ast) extends OptionOperation { def quat = body.quat }
 case class OptionForall(ast: Ast, alias: Ident, body: Ast)
   extends OptionOperation { def quat = body.quat }
+case class FilterIfDefined(ast: Ast, alias: Ident, body: Ast)
+  extends OptionOperation { def quat = body.quat }
 case class OptionExists(ast: Ast, alias: Ident, body: Ast)
   extends OptionOperation { def quat = body.quat }
 case class OptionContains(ast: Ast, body: Ast) extends OptionOperation { def quat = body.quat }
